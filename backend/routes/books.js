@@ -6,17 +6,11 @@ const multer = require("../middlewares/multer-config");
 const router = express.Router();
 
 router.post("/", auth, multer, booksCtrl.addBook);
-
 router.post("/:id/rating", auth, booksCtrl.addRating);
-
 router.put("/:id", auth, multer, booksCtrl.modifyBook);
-
 router.delete("/:id", auth, booksCtrl.deleteBook);
-
-router.get("/:id", booksCtrl.getOneBook);
-
-router.get("/bestrating", booksCtrl.getBestBooks);
-
 router.get("/", booksCtrl.getAllBooks);
+router.get("/bestrating", booksCtrl.getBestBooks); // /!\ si la route get/:id est au dessus de /bestrating = error
+router.get("/:id", booksCtrl.getOneBook);
 
 module.exports = router;
