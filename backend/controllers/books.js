@@ -1,14 +1,15 @@
 const Book = require("../models/book");
-const sharp = require("sharp");
 const fs = require("fs");
 
-const resizeImage = (filepath, filename) => {
+const sharp = require("sharp");
+
+function resizeImage(filepath, filename) {
   sharp(filepath)
     .resize(405, 570)
     .toFormat("webp")
     .webp({ quality: 80 })
     .toFile("./images/resized/" + filename);
-};
+}
 
 exports.addBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
@@ -16,7 +17,7 @@ exports.addBook = (req, res, next) => {
   if (req.file) {
     ref = req.file.filename + ".webp";
     const path = req.file.path;
-    resizeImage(path, ref);
+    resizeImage(path, req.file.filename);
   } else {
     return res.status(400).json({ message: "Fichier image manquant !" });
   }
