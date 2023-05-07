@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -22,9 +23,7 @@ exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
-        return res
-          .status(401)
-          .json({ message: "Indentifiants et/ou mot de passe incorrects !" });
+        return res.status(401).json({ message: "Indentifiants et/ou mot de passe incorrects !" });
       }
       bcrypt
         .compare(req.body.password, user.password)
@@ -36,9 +35,9 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
+            token: jwt.sign({ userId: user._id }, process.env.JWTOKEN, {
               expiresIn: "24h",
-            }), // chaine secrète tempo a changer pour prod à mettre en env
+            }),
           });
         })
         .catch((error) => res.status(500).json({ error }));

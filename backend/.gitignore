@@ -1,5 +1,5 @@
 node_modules
 passwords.txt
 .env
-/images
-!/images/.gitkeep
+images/*
+!images/.gitkeep
