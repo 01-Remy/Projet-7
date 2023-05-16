@@ -7,7 +7,7 @@ exports.addBook = (req, res, next) => {
     return res.status(400).json({ message: "Fichier image manquant !" });
   }
   delete bookObject._id;
-  delete bookObject._userId;
+  delete bookObject.userId;
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -20,7 +20,30 @@ exports.addBook = (req, res, next) => {
 };
 
 exports.addRating = (req, res, next) => {
-  // ajoute une note
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (book.userId === req.auth.userId) {
+        res.status(401).json({ message: "Vous ne pouvez pas noter un livre que vous avez ajouté" });
+      } else if (book.ratings.includes({ userId: req.auth.userId })) {
+        res.status(401).json({ message: "Vous avez déjà noté ce livre" });
+      } else if (req.body.rating >= 0 && req.body.rating <= 5) {
+        const newRating = {
+          userId: req.auth.userId,
+          grade: req.body.rating,
+        };
+        let sum = 0;
+        for (let i = 0; i < book.ratings.length; i++) {
+          sum += book.ratings[i].grade;
+        }
+        const average = sum / book.ratings.length;
+        book.ratings.push(newRating);
+        book.averageRating = average;
+        Book.updateOne({ _id: req.params.id }, { book })
+          .then(() => res.status(200).json(book))
+          .catch((error) => res.status(400).json({ error }));
+      }
+    })
+    .catch((error) => res.status(500).json({ error }));
 };
 
 exports.modifyBook = (req, res, next) => {
