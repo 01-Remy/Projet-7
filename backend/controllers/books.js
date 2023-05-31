@@ -31,14 +31,14 @@ exports.addRating = (req, res, next) => {
           userId: req.auth.userId,
           grade: req.body.rating,
         };
+        book.ratings.push(newRating);
         let sum = 0;
         for (let i = 0; i < book.ratings.length; i++) {
           sum += book.ratings[i].grade;
         }
         const average = sum / book.ratings.length;
-        book.ratings.push(newRating);
         book.averageRating = average;
-        Book.updateOne({ _id: req.params.id }, { book })
+        Book.updateOne({ _id: req.params.id }, { ratings: book.ratings, averageRating: average })
           .then(() => res.status(200).json(book))
           .catch((error) => res.status(400).json({ error }));
       }
